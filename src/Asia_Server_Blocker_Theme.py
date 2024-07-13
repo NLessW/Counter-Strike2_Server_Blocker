@@ -9,46 +9,56 @@ def toggle_server_block(server):
                 command = "netsh advfirewall firewall add rule name=blockSeoul dir=out action=block profile=any protocol=any remoteip=146.66.152.0-146.66.152.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Seoul server blocked successfully!")
+                status_labels["Seoul"].config(fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockSeoul"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Seoul server block removed!")
+                status_labels["Seoul"].config(fg='red')
         elif server == "Tokyo":
             if checkJapan.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockTokyo dir=out action=block profile=any protocol=any remoteip=45.121.184.0-45.121.184.255,45.121.186.0-45.121.186.255,45.121.187.0-45.121.187.255,61.14.157.0-61.14.157.255,146.66.152.0-146.66.152.255,155.133.239.0-155.133.239.255,155.133.245.0-155.133.245.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Tokyo server blocked successfully!")
+                status_labels["Tokyo"].config(fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockTokyo"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Tokyo server block removed!")
+                status_labels["Tokyo"].config(fg='red')
         elif server == "HongKong":
             if checkHongkong.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockHongKong dir=out action=block profile=any protocol=any remoteip=103.28.54.0-103.28.54.255,155.133.244.0-155.133.244.255,153.254.86.0-153.254.86.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "HongKong server blocked successfully!")
+                status_labels["HongKong"].config(fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockHongKong"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "HongKong server block removed!")
+                status_labels["HongKong"].config(fg='red')
         elif server == "India":
             if checkIndia.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockIndia dir=out action=block profile=any protocol=any remoteip=10.130.205.0-10.130.205.255,45.113.191.0-45.113.191.255,116.202.224.0-116.202.224.255,155.133.232.0-155.133.232.255,155.133.233.0-155.133.233.255,180.149.41.0-180.149.41.255,182.79.252.0-182.79.252.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "India server blocked successfully!")
+                status_labels["India"].config(fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockIndia"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "India server block removed!")
+                status_labels["India"].config(fg='red')
         elif server == "Singapore":
             if checkAsia.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockSingapore dir=out action=block profile=any protocol=any remoteip=45.121.184.0-45.121.184.255,45.121.185.0-45.121.185.255,10.156.7.0-10.156.7.255,103.28.54.0-103.28.54.255,103.28.55.0-103.28.55.255,103.10.124.0-103.10.124.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Singapore server blocked successfully!")
+                status_labels["Singapore"].config(fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockSingapore"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Singapore server block removed!")
+                status_labels["Singapore"].config(fg='red')
     except subprocess.CalledProcessError:
         messagebox.showerror("Error", "Failed to apply settings. Make sure you're running as administrator.")
 
@@ -73,6 +83,9 @@ def reset_all_blocks():
     checkHongkong.set(0)
     checkIndia.set(0)
     checkAsia.set(0)
+    
+    for label in status_labels.values():
+        label.config(fg='red')
     
     if success:
         messagebox.showinfo("Success", "All server blocks have been removed!")
@@ -100,8 +113,12 @@ def all_blocks():
     checkHongkong.set(1)
     checkIndia.set(1)
     checkAsia.set(1)
+    
+    for label in status_labels.values():
+        label.config(fg='#39FF14')
+    
     if success:
-        messagebox.showinfo("Success", "All server blocks successfully!")
+        messagebox.showinfo("Success", "All servers blocked successfully!")
     else:
         messagebox.showinfo("Error", "Failed to apply settings. Make sure you're running as administrator.")
 
@@ -109,21 +126,34 @@ window = tk.Tk()
 
 window.title("CS2 Server Blocker")
 window.iconbitmap('cs2.ico')
-window.geometry("400x450")
-window.configure(bg='#2C3E50')  # 다크 블루 배경
+window.geometry("300x450")
+window.configure(bg='#1E1E1E')
 
 style = ttk.Style()
 style.theme_use('clam')
 
-title_font = font.Font(family="Courier", size=18, weight="bold")
-button_font = font.Font(family="Courier", size=12)
+title_font = font.Font(family="Consolas", size=16, weight="bold")
+button_font = font.Font(family="Consolas", size=10)
 
-# 프레임 생성
-main_frame = tk.Frame(window, bg='#2C3E50', padx=20, pady=20)
+style.configure('TCheckbutton', background='#1E1E1E', foreground='#39FF14', font=button_font)
+style.map('TCheckbutton', 
+          foreground=[('active', '#FFFFFF')],
+          background=[('active', '#2C3E50')])
+
+style.configure('TButton', font=button_font, background='#39FF14', foreground='#1E1E1E')
+style.map('TButton',
+          foreground=[('active', '#FFFFFF')],
+          background=[('active', '#2C3E50')])
+
+main_frame = tk.Frame(window, bg='#1E1E1E')
 main_frame.pack(fill=tk.BOTH, expand=True)
 
-locationTitle = tk.Label(main_frame, text='CS2 SERVER BLOCKER', font=title_font, bg='#2C3E50', fg='#ECF0F1')
-asiaTitle = tk.Label(main_frame, text='ASIA SERVERS', font=title_font, bg='#2C3E50', fg='#ECF0F1')
+main_frame.columnconfigure(0, weight=0)
+main_frame.columnconfigure(1, weight=1)
+main_frame.columnconfigure(2, weight=0)  
+
+locationTitle = tk.Label(main_frame, text='CS2 Server Blocker', font=title_font, bg='#1E1E1E', fg='#39FF14')
+asiaTitle = tk.Label(main_frame, text='Asia Servers', font=title_font, bg='#1E1E1E', fg='#39FF14')
 
 checkKorea = tk.IntVar()
 checkJapan = tk.IntVar()
@@ -131,31 +161,55 @@ checkHongkong = tk.IntVar()
 checkIndia = tk.IntVar()
 checkAsia = tk.IntVar()
 
-# 체크박스 스타일 설정
-style.configure('TCheckbutton', background='#2C3E50', foreground='#ECF0F1', font=button_font)
+locationTitle.grid(row=0, column=0, columnspan=3, pady=(20, 20), sticky='ew')
+asiaTitle.grid(row=1, column=0, columnspan=3, pady=(0, 10), sticky='ew')
 
-checkKoreaBtn = ttk.Checkbutton(main_frame, text="SEOUL", variable=checkKorea, style='TCheckbutton', command=lambda: toggle_server_block("Seoul"))
-checkJapanBtn = ttk.Checkbutton(main_frame, text="TOKYO", variable=checkJapan, style='TCheckbutton', command=lambda: toggle_server_block("Tokyo"))
-checkHongkongBtn = ttk.Checkbutton(main_frame, text="HONG KONG", variable=checkHongkong, style='TCheckbutton', command=lambda: toggle_server_block("HongKong"))
-checkIndiaBtn = ttk.Checkbutton(main_frame, text="INDIA", variable=checkIndia, style='TCheckbutton', command=lambda: toggle_server_block("India"))
-checkAsiaBtn = ttk.Checkbutton(main_frame, text="SINGAPORE", variable=checkAsia, style='TCheckbutton', command=lambda: toggle_server_block("Singapore"))
+status_labels = {}
 
-# 버튼 스타일 설정
-style.configure('TButton', font=button_font, background='#3498DB', foreground='#ECF0F1')
+def create_server_row(row, text, variable, command):
+    frame = tk.Frame(main_frame, bg='#1E1E1E')
+    frame.grid(row=row, column=0, columnspan=3, sticky='ew')
+    frame.columnconfigure(1, weight=1)
 
-allResetBtn = ttk.Button(main_frame, text="ALL UNBLOCK", command=reset_all_blocks, style='TButton')
-allBlockBtn = ttk.Button(main_frame, text="ALL BLOCK", command=all_blocks, style='TButton')
+    icon = tk.Label(frame, text="🖧", bg='#1E1E1E', fg='#39FF14', font=("Segoe UI Symbol", 14))
+    icon.grid(row=0, column=0, padx=(20, 5), pady=2, sticky='w')
+    
+    check = ttk.Checkbutton(frame, text=text, variable=variable, style='TCheckbutton', command=command)
+    check.grid(row=0, column=1, padx=(0, 5), pady=2, sticky='w')
+    
+    status = tk.Label(frame, text="●", bg='#1E1E1E', fg='red', font=("Segoe UI Symbol", 14))
+    status.grid(row=0, column=2, padx=(0, 20), pady=2, sticky='e')
+    status_labels[text] = status
 
-locationTitle.pack(side="top", pady=(0, 20))
-asiaTitle.pack(pady=(0, 10))
+    def toggle(event):
+        variable.set(not variable.get())
+        command()
 
-for btn in [checkKoreaBtn, checkJapanBtn, checkHongkongBtn, checkIndiaBtn, checkAsiaBtn]:
-    btn.pack(anchor='w', fill='x', pady=5)
+    frame.bind("<Button-1>", toggle)
+    icon.bind("<Button-1>", toggle)
+    check.bind("<Button-1>", lambda e: e.widget.invoke(), add="+")
+    status.bind("<Button-1>", toggle)
+create_server_row(2, "Seoul", checkKorea, lambda: toggle_server_block("Seoul"))
+create_server_row(3, "Tokyo", checkJapan, lambda: toggle_server_block("Tokyo"))
+create_server_row(4, "HongKong", checkHongkong, lambda: toggle_server_block("HongKong"))
+create_server_row(5, "India", checkIndia, lambda: toggle_server_block("India"))
+create_server_row(6, "Singapore", checkAsia, lambda: toggle_server_block("Singapore"))
 
-button_frame = tk.Frame(main_frame, bg='#2C3E50')
-button_frame.pack(side="bottom", fill='x', pady=(20, 0))
+button_frame = tk.Frame(main_frame, bg='#1E1E1E')
+button_frame.grid(row=7, column=0, columnspan=3, pady=(20, 0), sticky='ew')
+button_frame.columnconfigure(0, weight=1)
+button_frame.columnconfigure(1, weight=1)
 
-allResetBtn.pack(side="left", expand=True, fill='x', padx=(0, 5))
-allBlockBtn.pack(side="right", expand=True, fill='x', padx=(5, 0))
+allResetBtn = ttk.Button(button_frame, text="UNBLOCK ALL", command=reset_all_blocks, style='TButton')
+allBlockBtn = ttk.Button(button_frame, text="BLOCK ALL", command=all_blocks, style='TButton')
+
+allResetBtn.grid(row=0, column=0, padx=(20, 5), sticky='ew')
+allBlockBtn.grid(row=0, column=1, padx=(5, 20), sticky='ew')
+
+ping_btn = ttk.Button(main_frame, text="PING TEST", style='TButton')
+ping_btn.grid(row=8, column=0, columnspan=3, pady=(20, 0), padx=20, sticky='ew')
+
+firewall_status = tk.Label(main_frame, text="Firewall Status: Active", font=button_font, bg='#1E1E1E', fg='#39FF14')
+firewall_status.grid(row=9, column=0, columnspan=3, pady=(20, 20), sticky='ew')
 
 window.mainloop()
