@@ -1,6 +1,51 @@
 import tkinter as tk
 from tkinter import font, messagebox, ttk
 import subprocess
+import re
+
+server_ips = {
+    "Seoul": "146.66.152.1",
+    "Tokyo": "45.121.184.1",
+    "HongKong": "103.28.54.1",
+    "India": "116.202.224.1",
+    "Singapore": "103.28.54.1"
+}
+
+def ping_server(ip):
+    try:
+        output = subprocess.check_output(["ping", "-n", "1", "-w", "1000", ip], universal_newlines=True)
+        match = re.search(r"시간=(\d+)ms", output)
+        if match:
+            return int(match.group(1))
+        else:
+            return "Timeout"
+    except subprocess.CalledProcessError:
+        return "Timeout"
+
+def run_ping_test():
+    for server, ip in server_ips.items():
+        ping_time = ping_server(ip)
+        if isinstance(ping_time, int):
+            status_labels[server].config(text=f"{ping_time}ms ●", fg='red')
+        else:
+            status_labels[server].config(text="Timeout ●", fg='red')
+
+def check_sdr_rule_exists():
+    command = "netsh advfirewall firewall show rule name=blockSDR"
+    try:
+        output = subprocess.check_output(command, shell=True, universal_newlines=True)
+        return "No rules match the specified criteria." not in output
+    except subprocess.CalledProcessError:
+        return False
+
+def add_sdr_rule():
+    if not check_sdr_rule_exists():
+        command = "netsh advfirewall firewall add rule name=blockSDR dir=out action=block profile=any protocol=any remoteip=143.137.146.0-143.137.146.255"
+        try:
+            subprocess.run(command, shell=True, check=True)
+            print("SDR rule added successfully.")
+        except subprocess.CalledProcessError:
+            print("Failed to add SDR rule.")
 
 def toggle_server_block(server):
     try:
@@ -9,56 +54,60 @@ def toggle_server_block(server):
                 command = "netsh advfirewall firewall add rule name=blockSeoul dir=out action=block profile=any protocol=any remoteip=146.66.152.0-146.66.152.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Seoul server blocked successfully!")
-                status_labels["Seoul"].config(fg='#39FF14')
+                status_labels["Seoul"].config(text="● ", fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockSeoul"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Seoul server block removed!")
-                status_labels["Seoul"].config(fg='red')
+                status_labels["Seoul"].config(text="● ", fg='red')
         elif server == "Tokyo":
             if checkJapan.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockTokyo dir=out action=block profile=any protocol=any remoteip=45.121.184.0-45.121.184.255,45.121.186.0-45.121.186.255,45.121.187.0-45.121.187.255,61.14.157.0-61.14.157.255,146.66.152.0-146.66.152.255,155.133.239.0-155.133.239.255,155.133.245.0-155.133.245.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Tokyo server blocked successfully!")
-                status_labels["Tokyo"].config(fg='#39FF14')
+                status_labels["Tokyo"].config(text="● ", fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockTokyo"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Tokyo server block removed!")
-                status_labels["Tokyo"].config(fg='red')
+                status_labels["Tokyo"].config(text="● ", fg='red')
         elif server == "HongKong":
             if checkHongkong.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockHongKong dir=out action=block profile=any protocol=any remoteip=103.28.54.0-103.28.54.255,155.133.244.0-155.133.244.255,153.254.86.0-153.254.86.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "HongKong server blocked successfully!")
-                status_labels["HongKong"].config(fg='#39FF14')
+                status_labels["HongKong"].config(text="● ", fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockHongKong"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "HongKong server block removed!")
-                status_labels["HongKong"].config(fg='red')
+                status_labels["HongKong"].config(text="● ", fg='red')
         elif server == "India":
             if checkIndia.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockIndia dir=out action=block profile=any protocol=any remoteip=10.130.205.0-10.130.205.255,45.113.191.0-45.113.191.255,116.202.224.0-116.202.224.255,155.133.232.0-155.133.232.255,155.133.233.0-155.133.233.255,180.149.41.0-180.149.41.255,182.79.252.0-182.79.252.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "India server blocked successfully!")
-                status_labels["India"].config(fg='#39FF14')
+                status_labels["India"].config(text="● ", fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockIndia"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "India server block removed!")
-                status_labels["India"].config(fg='red')
+                status_labels["India"].config(text="● ", fg='red')
         elif server == "Singapore":
             if checkAsia.get() == 1:
                 command = "netsh advfirewall firewall add rule name=blockSingapore dir=out action=block profile=any protocol=any remoteip=45.121.184.0-45.121.184.255,45.121.185.0-45.121.185.255,10.156.7.0-10.156.7.255,103.28.54.0-103.28.54.255,103.28.55.0-103.28.55.255,103.10.124.0-103.10.124.255"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Singapore server blocked successfully!")
-                status_labels["Singapore"].config(fg='#39FF14')
+                status_labels["Singapore"].config(text="● ", fg='#39FF14')
             else:
                 command = "netsh advfirewall firewall delete rule name=blockSingapore"
                 subprocess.run(command, shell=True, check=True)
                 messagebox.showinfo("Success", "Singapore server block removed!")
-                status_labels["Singapore"].config(fg='red')
+                status_labels["Singapore"].config(text="● ", fg='red')
+
+        # SDR 규칙 확인 및 추가
+        add_sdr_rule()
+
     except subprocess.CalledProcessError:
         messagebox.showerror("Error", "Failed to apply settings. Make sure you're running as administrator.")
 
@@ -68,7 +117,8 @@ def reset_all_blocks():
         "netsh advfirewall firewall delete rule name=blockTokyo",
         "netsh advfirewall firewall delete rule name=blockHongKong",
         "netsh advfirewall firewall delete rule name=blockIndia",
-        "netsh advfirewall firewall delete rule name=blockSingapore"
+        "netsh advfirewall firewall delete rule name=blockSingapore",
+        "netsh advfirewall firewall delete rule name=blockSDR"
     ]
     
     success = True
@@ -116,6 +166,9 @@ def all_blocks():
     
     for label in status_labels.values():
         label.config(fg='#39FF14')
+    
+    # SDR 규칙 추가
+    add_sdr_rule()
     
     if success:
         messagebox.showinfo("Success", "All servers blocked successfully!")
@@ -175,9 +228,9 @@ def create_server_row(row, text, variable, command):
     icon.grid(row=0, column=0, padx=(20, 5), pady=2, sticky='w')
     
     check = ttk.Checkbutton(frame, text=text, variable=variable, style='TCheckbutton', command=command)
-    check.grid(row=0, column=1, padx=(0, 5), pady=2, sticky='w')
+    check.grid(row=0, column=1, padx=(0, 5), pady=2, sticky='ew')
     
-    status = tk.Label(frame, text="●", bg='#1E1E1E', fg='red', font=("Segoe UI Symbol", 14))
+    status = tk.Label(frame, text="● ", bg='#1E1E1E', fg='red', font=("Segoe UI Symbol", 14))
     status.grid(row=0, column=2, padx=(0, 20), pady=2, sticky='e')
     status_labels[text] = status
 
@@ -189,6 +242,14 @@ def create_server_row(row, text, variable, command):
     icon.bind("<Button-1>", toggle)
     check.bind("<Button-1>", lambda e: e.widget.invoke(), add="+")
     status.bind("<Button-1>", toggle)
+
+    spacer = tk.Label(frame, bg='#1E1E1E')
+    spacer.grid(row=0, column=3, sticky='nsew')
+    spacer.bind("<Button-1>", toggle)
+
+    frame.grid_propagate(False)
+    frame.config(height=30)
+
 create_server_row(2, "Seoul", checkKorea, lambda: toggle_server_block("Seoul"))
 create_server_row(3, "Tokyo", checkJapan, lambda: toggle_server_block("Tokyo"))
 create_server_row(4, "HongKong", checkHongkong, lambda: toggle_server_block("HongKong"))
@@ -206,10 +267,10 @@ allBlockBtn = ttk.Button(button_frame, text="BLOCK ALL", command=all_blocks, sty
 allResetBtn.grid(row=0, column=0, padx=(20, 5), sticky='ew')
 allBlockBtn.grid(row=0, column=1, padx=(5, 20), sticky='ew')
 
-ping_btn = ttk.Button(main_frame, text="PING TEST", style='TButton')
+ping_btn = ttk.Button(main_frame, text="PING TEST", style='TButton', command=run_ping_test)
 ping_btn.grid(row=8, column=0, columnspan=3, pady=(20, 0), padx=20, sticky='ew')
 
-firewall_status = tk.Label(main_frame, text="Firewall Status: Active", font=button_font, bg='#1E1E1E', fg='#39FF14')
+firewall_status = tk.Label(main_frame, text="Made by NameLess\nhttps://github.com/NLessW", font=button_font, bg='#1E1E1E', fg='#39FF14')
 firewall_status.grid(row=9, column=0, columnspan=3, pady=(20, 20), sticky='ew')
 
 window.mainloop()
